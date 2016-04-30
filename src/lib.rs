@@ -2,6 +2,13 @@
  * MPEG  video encoder.
  */
 
+#![deny(non_camel_case_types)]
+#![deny(unused_parens)]
+#![deny(non_upper_case_globals)]
+#![deny(unused_qualifications)]
+#![deny(missing_docs)]
+#![deny(unused_results)]
+
 extern crate libc;
 extern crate ffmpeg_sys;
 
@@ -20,7 +27,7 @@ use std::sync::{Once, ONCE_INIT};
 
 static mut avformat_init: Once = ONCE_INIT;
 
-/// MPeg video recorder.
+/// MPEG video recorder.
 pub struct Encoder {
     tmp_frame_buf:    Vec<u8>,
     frame_buf:        Vec<u8>,
@@ -114,8 +121,21 @@ impl Encoder {
         }
     }
 
-    /// Adds a RGB or RGBA image to the current video.
-    pub fn encode(&mut self, width: usize, height: usize, data: &[u8], rgba: bool, vertical_flip: bool) {
+    /// Adds a image with a RGB pixel format to the video.
+    pub fn encode_rgb(&mut self, width: usize, height: usize, data: &[u8], vertical_flip: bool) {
+        assert!(data.len() == width * height * 3);
+        self.encode(width, height, data, false, vertical_flip)
+    }
+
+    /// Adds a image with a RGBA pixel format to the video.
+    pub fn encode_rgba(&mut self, width: usize, height: usize, data: &[u8], vertical_flip: bool) {
+        assert!(data.len() == width * height * 4);
+        self.encode(width, height, data, true, vertical_flip)
+    }
+
+    fn encode(&mut self, width: usize, height: usize, data: &[u8], rgba: bool, vertical_flip: bool) {
+        assert!((rgba && data.len() == width * height * 4) || (!rgba && data.len() == width * height * 3));
+
         self.init();
 
         let mut pkt: AVPacket = unsafe { mem::uninitialized() };

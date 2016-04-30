@@ -1,6 +1,6 @@
 [package]
 name = "mpeg_encoder"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 
 description = "A simple ffmpeg video encoder."
