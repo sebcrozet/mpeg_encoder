@@ -1,0 +1,14 @@
+[package]
+name = "mpeg_encoder"
+version = "0.1.0"
+authors = ["Sébastien Crozet <developer@crozet.re>"]
+
+description = "A simple ffmpeg video encoder."
+repository = "https://github.com/sebcrozet/mpeg_encoder"
+readme = "README.md"
+keywords = [ "encoder", "ffmpeg", "mpeg", "video" ]
+license = "BSD-3-Clause"
+
+[dependencies]
+ffmpeg-sys = "2.8.*"
+libc = "0.2.*"
