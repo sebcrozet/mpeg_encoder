@@ -1,6 +1,6 @@
 [package]
 name = "mpeg_encoder"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 
 description = "A simple ffmpeg video encoder."
@@ -10,5 +10,9 @@ keywords = [ "encoder", "ffmpeg", "mpeg", "video" ]
 license = "BSD-3-Clause"
 
 [dependencies]
-ffmpeg-sys = "2.8.*"
 libc = "0.2.*"
+
+[dependencies.ffmpeg-sys]
+version = "2.8.*"
+default-features = false
+features = [ "avformat", "swscale" ]
