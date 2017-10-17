@@ -319,7 +319,7 @@ impl Encoder {
                 ffmpeg_sys::SWS_BICUBIC as i32, ptr::null_mut(), ptr::null_mut(), ptr::null());
 
             // Put sample parameters.
-            (*self.context).bit_rate = self.bit_rate as i32;
+            (*self.context).bit_rate = self.bit_rate as i64;
 
             // Resolution must be a multiple of two.
             (*self.context).width    = self.target_width  as i32;

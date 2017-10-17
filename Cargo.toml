@@ -13,6 +13,6 @@ license = "BSD-3-Clause"
 libc = "0.2.*"
 
 [dependencies.ffmpeg-sys]
-version = "2.8.*"
+version = "3.3.*"
 default-features = false
 features = [ "avformat", "swscale" ]
