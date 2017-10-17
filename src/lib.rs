@@ -24,7 +24,7 @@ use std::ffi::CString;
 use std::iter::FromIterator;
 use std::sync::{Once, ONCE_INIT};
 
-static mut avformat_init: Once = ONCE_INIT;
+static mut AVFORMAT_INIT: Once = ONCE_INIT;
 
 /// MPEG video recorder.
 pub struct Encoder {
@@ -81,7 +81,7 @@ impl Encoder {
                                            pix_fmt: Option<AVPixelFormat>)
                                            -> Encoder {
         unsafe {
-            avformat_init.call_once(|| {
+            AVFORMAT_INIT.call_once(|| {
                 ffmpeg_sys::av_register_all();
             });
         }
