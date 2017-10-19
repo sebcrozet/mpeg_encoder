@@ -392,6 +392,8 @@ impl Encoder {
             (*self.tmp_frame).format = (*self.context).pix_fmt as i32;
             // the rest (width, height, data, linesize) are set at the moment of the snapshot.
 
+            ffmpeg_sys::av_dump_format(self.format_context, 0, path_str.as_ptr(), 1);
+
             // Open the output file.
             static AVIO_FLAG_WRITE: i32 = 2; // XXX: this should be defined by the bindings.
             if ffmpeg_sys::avio_open(&mut (*self.format_context).pb, path_str.as_ptr(), AVIO_FLAG_WRITE) < 0 {
@@ -444,6 +446,13 @@ impl Drop for Encoder {
                                                                        &mut pkt);
                         ffmpeg_sys::av_free_packet(&mut pkt);
                     }
+                }
+            }
+
+            // Write trailer
+            unsafe {
+                if ffmpeg_sys::av_write_trailer(self.format_context) < 0 {
+                    panic!("Error writing trailer.");
                 }
             }
 
