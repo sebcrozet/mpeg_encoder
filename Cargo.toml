@@ -9,9 +9,6 @@ readme = "README.md"
 keywords = [ "encoder", "ffmpeg", "mpeg", "video" ]
 license = "BSD-3-Clause"
 
-[dependencies]
-libc = "0.2.*"
-
 [dependencies.ffmpeg-sys]
 version = "3.3.*"
 default-features = false

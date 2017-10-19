@@ -8,12 +8,10 @@
 #![deny(missing_docs)]
 #![deny(unused_results)]
 
-extern crate libc;
 extern crate ffmpeg_sys;
 
 // Inspired by the muxing sample: http://ffmpeg.org/doxygen/trunk/muxing_8c-source.html
 
-use libc::c_void;
 use ffmpeg_sys::{SwsContext, AVCodec, AVCodecContext, AVPacket, AVFormatContext, AVStream,
                  AVFrame, AVRational, AVPixelFormat, AVPicture, AVCodecID};
 use std::ptr;
@@ -464,11 +462,14 @@ impl Drop for Encoder {
 
             // Free things and stuffs.
             unsafe {
-                let _ = ffmpeg_sys::avcodec_close(self.context);
-                ffmpeg_sys::av_free(self.context as *mut c_void);
-                // ffmpeg_sys::av_freep((*self.frame).data[0] as *mut c_void);
+                ffmpeg_sys::avcodec_free_context(&mut self.context);
                 ffmpeg_sys::av_frame_free(&mut self.frame);
                 ffmpeg_sys::av_frame_free(&mut self.tmp_frame);
+                ffmpeg_sys::sws_freeContext(self.scale_context);
+                if ffmpeg_sys::avio_closep(&mut (*self.format_context).pb) < 0 {
+                    println!("Warning: failed closing output file");
+                }
+                ffmpeg_sys::avformat_free_context(self.format_context);
             }
         }
     }
