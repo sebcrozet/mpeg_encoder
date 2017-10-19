@@ -393,7 +393,7 @@ impl Encoder {
                 panic!("Could not allocate the video frame.");
             }
 
-            (*self.frame).format = (*self.context).pix_fmt as i32;
+            (*self.tmp_frame).format = (*self.context).pix_fmt as i32;
             // the rest (width, height, data, linesize) are set at the moment of the snapshot.
 
             // Open the output file.
