@@ -296,7 +296,7 @@ impl Encoder {
                 panic!("Codec not found.");
             }
 
-            self.video_st = ffmpeg_sys::avformat_new_stream(self.format_context, codec);
+            self.video_st = ffmpeg_sys::avformat_new_stream(self.format_context, ptr::null());
 
             if self.video_st.is_null() {
                 panic!("Failed to allocate the video stream.");
@@ -304,9 +304,7 @@ impl Encoder {
 
             (*self.video_st).id = ((*self.format_context).nb_streams - 1) as i32;
 
-            self.context = (*self.video_st).codec;
-
-            let _ = ffmpeg_sys::avcodec_get_context_defaults3(self.context, codec);
+            self.context = ffmpeg_sys::avcodec_alloc_context3(codec);
 
             if self.context.is_null() {
                 panic!("Could not allocate video codec context.");
@@ -317,6 +315,8 @@ impl Encoder {
                 self.target_width as i32, self.target_height as i32, AVPixelFormat::AV_PIX_FMT_RGB24,
                 self.target_width as i32, self.target_height as i32, self.pix_fmt,
                 ffmpeg_sys::SWS_BICUBIC as i32, ptr::null_mut(), ptr::null_mut(), ptr::null());
+
+            (*self.context).codec_id = (*fmt).video_codec;
 
             // Put sample parameters.
             (*self.context).bit_rate = self.bit_rate as i64;
@@ -391,6 +391,12 @@ impl Encoder {
 
             (*self.tmp_frame).format = (*self.context).pix_fmt as i32;
             // the rest (width, height, data, linesize) are set at the moment of the snapshot.
+
+            if ffmpeg_sys::avcodec_parameters_from_context((*self.video_st).codecpar, self.context)
+                < 0
+            {
+                panic!("Failed to set codec parameters.");
+            }
 
             ffmpeg_sys::av_dump_format(self.format_context, 0, path_str.as_ptr(), 1);
 
