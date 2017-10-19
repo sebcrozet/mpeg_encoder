@@ -84,7 +84,7 @@ impl Encoder {
             });
         }
 
-        let bit_rate = bit_rate.unwrap_or(400000); // FIXME
+        let bit_rate = bit_rate.unwrap_or(40_0000); // FIXME
         let time_base = time_base.unwrap_or((1, 60));
         let gop_size = gop_size.unwrap_or(10);
         let max_b_frames = max_b_frames.unwrap_or(1);
@@ -128,13 +128,13 @@ impl Encoder {
 
     /// Adds a image with a RGB pixel format to the video.
     pub fn encode_rgb(&mut self, width: usize, height: usize, data: &[u8], vertical_flip: bool) {
-        assert!(data.len() == width * height * 3);
+        assert_eq!(data.len(), width * height * 3);
         self.encode(width, height, data, false, vertical_flip)
     }
 
     /// Adds a image with a RGBA pixel format to the video.
     pub fn encode_rgba(&mut self, width: usize, height: usize, data: &[u8], vertical_flip: bool) {
-        assert!(data.len() == width * height * 4);
+        assert_eq!(data.len(), width * height * 4);
         self.encode(width, height, data, true, vertical_flip)
     }
 
@@ -165,7 +165,7 @@ impl Encoder {
 
         if rgba {
             for (i, pixel) in data.chunks(4).enumerate() {
-                self.tmp_frame_buf[i * 3 + 0] = pixel[0];
+                self.tmp_frame_buf[i * 3] = pixel[0];
                 self.tmp_frame_buf[i * 3 + 1] = pixel[1];
                 self.tmp_frame_buf[i * 3 + 2] = pixel[2];
             }
@@ -182,7 +182,7 @@ impl Encoder {
         unsafe {
             (*self.frame).pts +=
                 ffmpeg_sys::av_rescale_q(1, (*self.context).time_base, (*self.video_st).time_base);
-            self.curr_frame_index = self.curr_frame_index + 1;
+            self.curr_frame_index += self.curr_frame_index;
         }
 
         unsafe {
@@ -190,11 +190,13 @@ impl Encoder {
             (*self.tmp_frame).width = width as i32;
             (*self.tmp_frame).height = height as i32;
 
-            let _ = ffmpeg_sys::avpicture_fill(self.tmp_frame as *mut AVPicture,
-                                               self.tmp_frame_buf.get(0).unwrap(),
-                                               AVPixelFormat::AV_PIX_FMT_RGB24,
-                                               width as i32,
-                                               height as i32);
+            let _ = ffmpeg_sys::avpicture_fill(
+                self.tmp_frame as *mut AVPicture,
+                &self.tmp_frame_buf[0],
+                AVPixelFormat::AV_PIX_FMT_RGB24,
+                width as i32,
+                height as i32,
+            );
         }
 
         // Convert the snapshot frame to the right format for the destination frame.
@@ -213,13 +215,15 @@ impl Encoder {
                                                  ptr::null_mut(),
                                                  ptr::null());
 
-            let _ = ffmpeg_sys::sws_scale(self.scale_context,
-                                          mem::transmute(&(*self.tmp_frame).data[0]),
-                                          &(*self.tmp_frame).linesize[0],
-                                          0,
-                                          height as i32,
-                                          mem::transmute(&(*self.frame).data[0]),
-                                          &mut (*self.frame).linesize[0]);
+            let _ = ffmpeg_sys::sws_scale(
+                self.scale_context,
+                &(*self.tmp_frame).data[0] as *const *mut u8 as *const *const u8,
+                &(*self.tmp_frame).linesize[0],
+                0,
+                height as i32,
+                &(*self.frame).data[0] as *const *mut u8 as *const *const u8,
+                &(*self.frame).linesize[0],
+            );
         }
 
 
