@@ -346,10 +346,6 @@ impl Encoder {
             }
             */
 
-            if ffmpeg_sys::avformat_write_header(self.format_context, ptr::null_mut()) < 0 {
-                panic!("Failed to open the output file.");
-            }
-
             // Open the codec.
             if ffmpeg_sys::avcodec_open2(self.context, codec, ptr::null_mut()) < 0 {
                 panic!("Could not open the codec.");
@@ -399,6 +395,10 @@ impl Encoder {
             // Open the output file.
             static AVIO_FLAG_WRITE: i32 = 2; // XXX: this should be defined by the bindings.
             if ffmpeg_sys::avio_open(&mut (*self.format_context).pb, path_str.as_ptr(), AVIO_FLAG_WRITE) < 0 {
+                panic!("Failed to open the output file.");
+            }
+
+            if ffmpeg_sys::avformat_write_header(self.format_context, ptr::null_mut()) < 0 {
                 panic!("Failed to open the output file.");
             }
 
