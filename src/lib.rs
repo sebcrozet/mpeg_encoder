@@ -267,7 +267,7 @@ impl Encoder {
 
             let _ = ffmpeg_sys::avformat_alloc_output_context2(&mut fmt, ptr::null_mut(), ptr::null(), path_str.as_ptr());
 
-            if self.format_context.is_null() {
+            if fmt.is_null() {
                 // could not guess, default to MPEG
                 let mpeg = CString::new(&b"mpeg"[..]).unwrap();
 
